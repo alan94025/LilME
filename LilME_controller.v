@@ -39,7 +39,7 @@ module LilME_controller #(
     reg [2:0] out_counter;  // Counter to scroll through 256-bit mult_result in 32-bit chunks
 
     // Matrix_A module instantiation
-    Matrix_A matrix_A (
+    Matrix_A #(.row(4), .col(4)) matrix_A (
         .clk(clk),
         .reset(reset),
         .A_opcode(A_opcode),
@@ -49,7 +49,7 @@ module LilME_controller #(
     );
 
     // Matrix_B module instantiation
-    Matrix_B #(.row(row), .column(col)) matrix_B (
+    Matrix_B #(.row(4), .col(4)) matrix_B (
         .clk(clk),
         .n_reset(reset),
         .opcode(B_opcode),
@@ -63,9 +63,9 @@ module LilME_controller #(
         .clk(clk),
         .n_reset(reset),
         .opcode(ME_opcode[1:0]),
-        .A(matrix_A_data),
-        .B(matrix_B_data),
-        .result(mult_result),
+        .in_A(matrix_A_data),
+        .in_B(matrix_B_data),
+        .out_M(mult_result),
         .busy_M(Busy_M)
     );
 
