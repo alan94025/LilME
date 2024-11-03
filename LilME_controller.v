@@ -10,7 +10,7 @@ module LilME_controller #(
     input [2:0] ME_opcode,   // Global system control opcode
     input A_opcode,          // 1-bit Matrix_A control opcode
     input B_opcode,          // 1-bit Matrix_B control opcode
-    input [aw:0] Address_out,
+    output [aw:0] Address_out,
     input [dw:0] Data_in,
     output reg [dw:0] Data_out,
     output reg Busy,
@@ -51,22 +51,22 @@ module LilME_controller #(
     // Matrix_B module instantiation
     Matrix_B #(.row(4), .col(4)) matrix_B (
         .clk(clk),
-        .n_reset(reset),
-        .opcode(B_opcode),
+        .n_reset(~reset),
+        .B_opcode(B_opcode),
         .Data_to_B(Data_in),
         .Data_out(matrix_B_data),
-        .Busy(Busy_B)
+        .Busy_B(Busy_B)
     );
 
     // Multiplier_M module instantiation
     Multiplier_M #(.dw(dw), .row(row), .col(col)) multiplier (
         .clk(clk),
-        .n_reset(reset),
+        .n_reset(~reset),
         .opcode(ME_opcode[1:0]),
         .in_A(matrix_A_data),
         .in_B(matrix_B_data),
         .out_M(mult_result),
-        .busy_M(Busy_M)
+        .Busy_M(Busy_M)
     );
 
     // FSM Sequential Block
@@ -100,7 +100,7 @@ module LilME_controller #(
 
         case (current_state)
             IDLE: begin
-                Busy = 1'b0;
+		  Busy = 1'b0;
                 case (ME_opcode)
                     3'b001: next_state = LOAD_ADDRESS;
                     3'b010: next_state = LOAD_A;
@@ -114,8 +114,8 @@ module LilME_controller #(
             end
 
             LOAD_ADDRESS: begin
-                Busy = Busy_A | Busy_B;
-                if (!Busy) next_state = IDLE;
+                Busy = 1'b1; 
+                if (!Busy_A && !Busy_B ) next_state = IDLE;
             end
             
             LOAD_A: begin
