@@ -147,7 +147,7 @@ module LilME_controller #(
             end
 
             CALC: begin
-                Busy = Busy_M;
+                Busy = 1'b1;
                 if (!Busy_M) next_state = DATA_OUT;
             end
 
@@ -205,7 +205,7 @@ module LilME_controller #(
     always @(posedge clk or posedge reset) begin
         if (reset) begin
             result <= 0;
-        end else if (current_state == CALC && !Busy_M) begin
+        end else if (current_state == DATA_OUT && ME_opcode == 3'b101) begin
             result <= mult_result[31:0]; // Store a portion of the result for observation
         end
     end
